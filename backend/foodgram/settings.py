@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'recipes.apps.RecipesConfig',
     'tags.apps.TagsConfig',
     'users.apps.UsersConfig',
+    'sorl.thumbnail',
     'rest_framework',
     'djoser',
 ]

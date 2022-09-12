@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from backend.ingredients.models import Ingredients
+from ingredients.models import Ingredients
 
 from .views import (TagViewSet,
                     UserViewSet,
