@@ -2,6 +2,6 @@ from django.core.validators import RegexValidator
 
 
 validate_username = RegexValidator(
-    r'^[\w.@+-]+\z',
+    r'^[\w.@+-]+$',
     'Использованы недопустимые символы!'
 )

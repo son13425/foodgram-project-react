@@ -12,14 +12,12 @@ class RecipeAdmin(admin.ModelAdmin):
         'text',
         'author',
         'image',
-        'ingredients',
-        'tags',
         'cooking_time',
         'pub_date',
         'count_favorites'
     )
-    search_fields = ('name', 'text', 'author', 'tags',)
-    list_filter = ('pub_date', 'name', 'author', 'tags',)
+    search_fields = ('name', 'text', 'author',)
+    list_filter = ('pub_date', 'name', 'author',)
     empty_value_display = '-пусто-'
 
     def count_favorites(self, obj):
