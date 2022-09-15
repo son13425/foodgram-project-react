@@ -11,7 +11,7 @@ app_name = 'api'
 
 
 router = DefaultRouter()
-# router.register(r'users', UserViewSet, basename='users')
+router.register(r'users', UserViewSet, basename='users')
 router.register(r'tags', TagViewSet, basename='tags')
 router.register(r'ingredients', IngredientsViewSet, basename='ingredients')
 router.register(r'recipes', RecipesViewSet, basename='recipes')
