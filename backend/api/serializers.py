@@ -29,15 +29,23 @@ class UserCreateSerializer(UserCreateSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
+        is_subscribed = serializers.SerializerMethodField()
         model = User
         fields = (
             'id',
             'username',
             'email',
-            'password',
             'first_name',
-            'last_name'
+            'last_name',
+            'is_subscribed'
         )
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        return Follow.objects.filter(
+            user=request.user,
+            author=obj
+        ).exists()
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -52,6 +60,16 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
+    user = serializers.SlugRelatedField(
+        queryset=User.objects.all(),
+        slug_field='username',
+        default=serializers.CurrentUserDefault()
+    )
+    following = serializers.SlugRelatedField(
+        queryset=User.objects.all(),
+        slug_field='username',
+    )
+
     class Meta:
         model = Follow
         fields = (
@@ -59,6 +77,21 @@ class FollowSerializer(serializers.ModelSerializer):
             'user',
             'author'
         )
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=Follow.objects.all(),
+                fields=['user', 'following'],
+                message='Повторная подписка запрещена'
+            )
+        ]
+
+    def validate_following(self, obj):
+        request = self.context.get('request')
+        if request.user == obj:
+            raise serializers.ValidationError(
+                'Подписка на себя запрещена'
+            )
+        return obj
 
 
 class IngredientsSerializer(serializers.ModelSerializer):

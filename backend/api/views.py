@@ -1,5 +1,6 @@
-from django.shortcuts import render
-from rest_framework import viewsets
+from rest_framework import status, viewsets
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .serializers import (IngredientsSerializer,
                         IngredientInRecipeSerializer,
@@ -8,6 +9,7 @@ from .serializers import (IngredientsSerializer,
                         RecipeSerializer,
                         ShoppingListSerializer,
                         TagSerializer,
+                        UserCreateSerializer,
                         UserSerializer)
 from ingredients.models import Ingredients
 from recipes.models import (Recipe,
@@ -53,6 +55,15 @@ class TagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class APIUser(APIView):
+    def get(self, request):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = UserCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

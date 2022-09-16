@@ -1,6 +1,9 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import (AbstractBaseUser,
+                                        BaseUserManager,
+                                        PermissionsMixin)
 from django.db import models
 from django.db.models.constraints import UniqueConstraint
+from django.utils.translation import gettext_lazy as _
 
 from .validators import validate_username
 
@@ -12,28 +15,25 @@ class UserAccountManager(BaseUserManager):
         first_name,
         last_name,
         email,
-        password=None
+        password=None,
     ):
         if not email:
             raise ValueError(
                 'Для регистрации обязательно введите email!'
             )
-
         email = self.normalize_email(email)
         user = self.model(
             email=email,
             username=username,
             first_name=first_name,
-            last_name=last_name
+            last_name=last_name,
         )
-
         user.set_password(password)
         user.save()
-
         return user
 
 
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(
         max_length=150,
         unique=True,
@@ -61,6 +61,9 @@ class User(AbstractBaseUser):
         default=True
     )
     is_staff = models.BooleanField(
+        default=True
+    )
+    is_subscribed = models.BooleanField(
         default=False
     )
 
@@ -73,6 +76,16 @@ class User(AbstractBaseUser):
         'last_name'        
     ]
 
+    def has_perm(self, perm, obj=None):
+        return True
+    
+    def is_staff(self):
+        return self.staff
+    
+    @property
+    def is_admin(self):
+        return self.admin
+    
     def get_full_name(self):
         return self.first_name
 
