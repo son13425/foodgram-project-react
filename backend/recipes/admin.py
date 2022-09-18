@@ -1,12 +1,31 @@
 from django.contrib import admin
 
+from ingredients.models import Ingredients
+
 from .models import (Recipe,
                     IngredientInRecipe,
                     FavoriteRecipes,
                     ShoppingList)
 
 
+class IngredientsInRecipeInline(admin.TabularInline):
+    model = Recipe.ingredients.through
+    extra = 1
+
+
+class IngredientInRecipeAdmin(admin.ModelAdmin):
+    list_display = (
+        'recipe',
+        'ingredient',
+        'amount',
+    )
+    search_fields = ('recipe__name',)
+    list_filter = ('recipe',)
+    empty_value_display = '-пусто-'
+
+
 class RecipeAdmin(admin.ModelAdmin):
+    inlines = (IngredientsInRecipeInline,)
     list_display = (
         'name',
         'text',
@@ -22,17 +41,6 @@ class RecipeAdmin(admin.ModelAdmin):
 
     def count_favorites(self, obj):
         return obj.favorites.count()
-
-
-class IngredientInRecipeAdmin(admin.ModelAdmin):
-    list_display = (
-        'recipe',
-        'ingredient',
-        'amount',
-    )
-    search_fields = ('recipe',)
-    list_filter = ('recipe',)
-    empty_value_display = '-пусто-'
 
 
 class FavoriteRecipesAdmin(admin.ModelAdmin):

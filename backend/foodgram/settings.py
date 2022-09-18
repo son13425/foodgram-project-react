@@ -32,26 +32,20 @@ INSTALLED_APPS = [
     'recipes.apps.RecipesConfig',
     'tags.apps.TagsConfig',
     'users.apps.UsersConfig',
-    'sorl.thumbnail',
     'rest_framework',
-    'djoser',
+    'rest_framework.authtoken',
+    'djoser'
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny', 
+        'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 6,
 }
 
-SIMPLE_JWT = {
-   'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-   'AUTH_HEADER_TYPES': ('JWT',),
-}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -93,14 +87,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
-
-EMAIL_BACAKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'inf.foodgram@gmail.com'
-EMAIL_HOST_PASSWORD = 'uixrdzsydfrngtcu'
-EMAIL_USE_TLS = True
 
 
 # Password validation
@@ -152,24 +138,16 @@ MEDIAFILES_DIRS = [
 ]
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 DJOSER = {
     'LOGIN_FIELD': 'username',
-    'USER_CREATE_PASSWORD_RETYPE': False,
-    'USERNAME_CHANGED_EMAIL_CONFIRMATION': True,
-    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
-    'SEND_CONFIRMATION_EMAIL': True,
-    'SET_PASSWORD_RETYPE': True,
-    'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
-    'USERNAME_RESET_CONFIRM_URL': 'username/reset/confirm/{uid}/{token}',
-    'ACTIVATION_URL': 'activate/{uid}/{token}',
-    'SEND_ACTIVATION_EMAIL': True,
+    'USER_ID_FIELD': 'id',
+    'PASSWORD_RESET_CONFIRM_URL': 'set_password/{uid}/{token}',
     'SERIALIZERS': {
         'user_create': 'api.serializers.UserCreateSerializer',
-        'user': 'api.serializers.UserSerializer',
-        'user_delete': 'djoser.serializers.UserDeleteSerializer',
+        'user': 'api.serializers.UserCreateSerializer',
     }
 }
-
 
 AUTH_USER_MODEL = 'users.User'

@@ -1,5 +1,4 @@
 from djoser.serializers import UserCreateSerializer
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from ingredients.models import Ingredients
@@ -8,10 +7,7 @@ from recipes.models import (Recipe,
                             FavoriteRecipes,
                             ShoppingList)
 from tags.models import Tag
-from users.models import Follow
-
-
-User = get_user_model()
+from users.models import User, Follow
 
 
 class UserCreateSerializer(UserCreateSerializer):
@@ -28,8 +24,11 @@ class UserCreateSerializer(UserCreateSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    is_subscribed = serializers.SerializerMethodField(
+        label='Подписан ли текущий пользователь на этого'
+    )
+
     class Meta:
-        is_subscribed = serializers.SerializerMethodField()
         model = User
         fields = (
             'id',
@@ -41,11 +40,12 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        request = self.context.get('request')
-        return Follow.objects.filter(
-            user=request.user,
-            author=obj
+        request = self.context.get('request').user.id
+        queryset = Follow.objects.filter(
+            user=request,
+            author=obj.id
         ).exists()
+        return queryset
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -121,14 +121,27 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit'
+    )
+    
     class Meta:
         model = IngredientInRecipe
         fields = (
             'id',
-            'recipe',
-            'ingredient',
+            'name',
+            'measurement_unit',
             'amount'
         )
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=IngredientInRecipe.objects.all(),
+                fields=['ingredient', 'recipe'],
+                message='Этот продукт уже добавлен в рецепт'
+            )
+        ]
 
 
 class FavoriteRecipesSerializer(serializers.ModelSerializer):

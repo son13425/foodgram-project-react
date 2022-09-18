@@ -1,7 +1,8 @@
-from rest_framework import status, viewsets
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework import filters, mixins, permissions, viewsets
+from rest_framework.permissions import AllowAny
 
+from .pagination import CustomPagination
+from .permissions import AuthorOrReadOnly
 from .serializers import (IngredientsSerializer,
                         IngredientInRecipeSerializer,
                         FavoriteRecipesSerializer,
@@ -17,7 +18,7 @@ from recipes.models import (Recipe,
                             FavoriteRecipes,
                             ShoppingList)
 from tags.models import Tag
-from users.models import Follow, User
+from users.models import User
 
 
 class IngredientsViewSet(viewsets.ModelViewSet):
@@ -35,14 +36,28 @@ class FavoriteRecipesViewSet(viewsets.ModelViewSet):
     serializer_class = FavoriteRecipesSerializer
 
 
-class FollowViewSet(viewsets.ModelViewSet):
-    queryset = Follow.objects.all()
+class CreateListViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                        viewsets.GenericViewSet):
+    pass
+
+
+class FollowViewSet(CreateListViewSet):
     serializer_class = FollowSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['user__username', 'following__username']
+
+    def get_queryset(self):
+        return self.request.user.follower
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+    permission_classes = (AuthorOrReadOnly,)
 
 
 class ShoppingListViewSet(viewsets.ModelViewSet):
@@ -50,20 +65,19 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
     serializer_class = ShoppingListSerializer
 
 
-class TagViewSet(viewsets.ModelViewSet):
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    permission_classes = (AllowAny,)
 
 
-class APIUser(APIView):
-    def get(self, request):
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (AllowAny,)
+    pagination_class = CustomPagination
 
-    def post(self, request):
-        serializer = UserCreateSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return UserCreateSerializer
+        return UserSerializer

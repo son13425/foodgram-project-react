@@ -1,39 +1,11 @@
-from django.contrib.auth.models import (AbstractBaseUser,
-                                        BaseUserManager,
-                                        PermissionsMixin)
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models.constraints import UniqueConstraint
-from django.utils.translation import gettext_lazy as _
 
 from .validators import validate_username
 
 
-class UserAccountManager(BaseUserManager):
-    def create_user(
-        self,
-        username,
-        first_name,
-        last_name,
-        email,
-        password=None,
-    ):
-        if not email:
-            raise ValueError(
-                'Для регистрации обязательно введите email!'
-            )
-        email = self.normalize_email(email)
-        user = self.model(
-            email=email,
-            username=username,
-            first_name=first_name,
-            last_name=last_name,
-        )
-        user.set_password(password)
-        user.save()
-        return user
-
-
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractUser):
     username = models.CharField(
         max_length=150,
         unique=True,
@@ -61,13 +33,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         default=True
     )
     is_staff = models.BooleanField(
-        default=True
-    )
-    is_subscribed = models.BooleanField(
         default=False
     )
-
-    objects = UserAccountManager()
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = [
@@ -76,16 +43,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         'last_name'        
     ]
 
-    def has_perm(self, perm, obj=None):
-        return True
-    
-    def is_staff(self):
-        return self.staff
-    
-    @property
-    def is_admin(self):
-        return self.admin
-    
     def get_full_name(self):
         return self.first_name
 
