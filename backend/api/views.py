@@ -24,6 +24,7 @@ from users.models import User
 class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
+    pagination_class = CustomPagination
 
 
 class IngredientInRecipeViewSet(viewsets.ModelViewSet):
@@ -58,6 +59,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (AuthorOrReadOnly,)
+    pagination_class = CustomPagination
 
 
 class ShoppingListViewSet(viewsets.ModelViewSet):
