@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'sorl.thumbnail',
     'api.apps.ApiConfig',
     'ingredients.apps.IngredientsConfig',
     'recipes.apps.RecipesConfig',

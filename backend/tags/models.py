@@ -1,5 +1,7 @@
 from django.db import models
 
+from users.validators import validate_hex_color
+
 
 class Tag(models.Model):
     name = models.CharField(
@@ -12,6 +14,7 @@ class Tag(models.Model):
         default='#FF0000',
         max_length=7,
         unique=True,
+        validators=[validate_hex_color],
         verbose_name='Цвет в HEX',
         help_text='Цвет в HEX'
     )

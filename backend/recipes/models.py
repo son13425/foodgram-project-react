@@ -26,9 +26,9 @@ class Recipe(models.Model):
         help_text='Автор рецепта'
     )
     image = models.ImageField(
-        'Картинка',
         upload_to='recipes/',
-        blank=True
+        verbose_name='Изображение',
+        help_text='Изображение'
     )
     ingredients = models.ManyToManyField(
         Ingredients,
