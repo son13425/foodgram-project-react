@@ -1,5 +1,3 @@
-from cProfile import label
-from urllib import request
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
@@ -26,19 +24,6 @@ class Hex2NameColor(serializers.Field):
                 'Для этого цвета нет имени'
             )
         return data
-
-
-class UserCreateSerializer(UserCreateSerializer):
-    class Meta(UserCreateSerializer.Meta):
-        model = User
-        fields = (
-            'id',
-            'username',
-            'email',
-            'password',
-            'first_name',
-            'last_name'
-        )
 
 
 class UserSerializer(serializers.ModelSerializer):
