@@ -7,6 +7,7 @@ class Tag(models.Model):
     name = models.CharField(
         max_length=200,
         unique=True,
+        db_index=True,
         verbose_name='Название',
         help_text='Название'
     )
@@ -25,10 +26,10 @@ class Tag(models.Model):
         help_text='Уникальный слаг'
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ['name']
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
+
+    def __str__(self):
+        return self.name

@@ -37,6 +37,7 @@ class Recipe(models.Model):
     )
     tags = models.ManyToManyField(
         Tag,
+        related_name='tag_recipe',
         verbose_name='Теги',
         help_text='Теги'
     )
@@ -100,7 +101,6 @@ class IngredientInRecipe(models.Model):
                 name='unique_ingredient'
             )
         ]
-        db_table = 'recipes_ingredient_in_recipe'
         ordering = ['-ingredient',]
         verbose_name = 'Количество ингридиента в рецепте'
         verbose_name_plural = 'Количество ингридиентов в рецепте'
@@ -116,14 +116,14 @@ class FavoriteRecipes(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='favorites',
+        related_name='user_favorites',
         verbose_name='Автор списка избранного',
         help_text='Автор списка избранного'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='favorites',
+        related_name='recipe_favorites',
         verbose_name='Рецепт из списка избранного',
         help_text='Рецепт из списка избранного'
     )
@@ -146,14 +146,14 @@ class ShoppingList(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='shoppinglist',
+        related_name='user_shoppinglist',
         verbose_name='Автор списка покупок',
         help_text='Автор списка покупок'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='shoppinglist',
+        related_name='recipe_shoppinglist',
         verbose_name='Список покупок',
         help_text='Список покупок'
     )

@@ -1,8 +1,7 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import (#APIUser,
-                    TagViewSet,
+from .views import (TagViewSet,
                     IngredientsViewSet,
                     RecipesViewSet,
                     UserViewSet)
@@ -19,8 +18,7 @@ router.register(r'recipes', RecipesViewSet, basename='recipes')
 
 
 urlpatterns = [
-#   path('users/', APIUser.as_view()),
     path('', include(router.urls)),
     path('', include('djoser.urls')),
-    path('', include('djoser.urls.authtoken')),
+    path('auth/', include('djoser.urls.authtoken')),
 ]

@@ -1,3 +1,4 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, permissions, viewsets
 from rest_framework.permissions import AllowAny
 
@@ -61,6 +62,8 @@ class RecipesViewSet(viewsets.ModelViewSet):
     permission_classes = (AuthorOrReadOnly,)
     pagination_class = CustomPagination
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 class ShoppingListViewSet(viewsets.ModelViewSet):
     queryset = ShoppingList.objects.all()
