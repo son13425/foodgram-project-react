@@ -16,6 +16,7 @@ from .serializers import (IngredientsSerializer,
                         RecipeSerializer,
                         ShoppingListSerializer,
                         TagSerializer,
+                        UserCreateSerializer,
                         UserWithRecipesSerializer,
                         UserSerializer)
 from ingredients.models import Ingredients
@@ -151,7 +152,12 @@ class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     pagination_class = CustomPagination
     serializer_class = UserSerializer
-    permission_classes = (AuthorOrReadOnly,)
+    permission_classes = (AllowAny,)
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return UserCreateSerializer
+        return UserSerializer
 
     @action(detail=True, permission_classes=[IsAuthenticated])
     def follow(self, request, id=None):

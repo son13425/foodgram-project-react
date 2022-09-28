@@ -26,6 +26,19 @@ class Hex2NameColor(serializers.Field):
         return data
 
 
+class UserCreateSerializer(UserCreateSerializer):
+    class Meta(UserCreateSerializer.Meta):
+        model = User
+        fields = (
+            'id',
+            'username',
+            'email',
+            'password',
+            'first_name',
+            'last_name'
+        )
+
+
 class UserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField(
         label='Подписан ли текущий пользователь на этого'
