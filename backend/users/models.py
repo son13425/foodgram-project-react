@@ -40,7 +40,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = [
         'email',
         'first_name',
-        'last_name'        
+        'last_name'
     ]
 
     def get_full_name(self):

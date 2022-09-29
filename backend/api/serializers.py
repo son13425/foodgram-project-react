@@ -1,14 +1,11 @@
+import webcolors
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework import serializers
-import webcolors
-
 from ingredients.models import Ingredients
-from recipes.models import (Recipe,
-                            IngredientInRecipe,
-                            FavoriteRecipes,
+from recipes.models import (FavoriteRecipes, IngredientInRecipe, Recipe,
                             ShoppingList)
+from rest_framework import serializers
 from tags.models import Tag
 from users.models import Follow, User
 
@@ -16,6 +13,7 @@ from users.models import Follow, User
 class Hex2NameColor(serializers.Field):
     def to_representation(self, value):
         return value
+
     def to_internal_value(self, data):
         try:
             data = webcolors.hex_to_name(data)
@@ -23,7 +21,7 @@ class Hex2NameColor(serializers.Field):
             raise serializers.ValidationError(
                 'Для этого цвета нет имени'
             )
-        return data
+        return webcolors.hex_to_name(data)
 
 
 class UserCreateSerializer(UserCreateSerializer):
@@ -59,11 +57,10 @@ class UserSerializer(serializers.ModelSerializer):
         request = self.context.get('request').user.id
         if request is None or request.is_anonymous:
             return False
-        queryset = Follow.objects.filter(
+        return Follow.objects.filter(
             user=request,
             author=obj.id
         ).exists()
-        return queryset
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -130,7 +127,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
     )
-    
+
     class Meta:
         model = IngredientInRecipe
         fields = (
@@ -186,11 +183,10 @@ class RecipeSerializer(serializers.ModelSerializer):
         request = self.context.get('request').user.id
         if request is None or request.is_anonymous:
             return False
-        queryset = model.objects.filter(
+        return model.objects.filter(
             user=request,
             recipe=obj.id
         ).exists()
-        return queryset
 
     def get_is_favorited(self, obj):
         return self.in_card(obj, FavoriteRecipes)
@@ -270,16 +266,15 @@ class UserWithRecipesSerializer(serializers.ModelSerializer):
             'recipes',
             'recipes_count'
         )
-    
+
     def get_is_subscribed(self, obj):
         request = self.context.get('request').user.id
         if not request or request.is_anonymous:
             return False
-        queryset = Follow.objects.filter(
+        return Follow.objects.filter(
             user=obj.user,
             author=obj.author
         ).exists()
-        return queryset
 
     def get_recipes(self, obj):
         request = self.context.get('request').user.id
@@ -297,10 +292,9 @@ class UserWithRecipesSerializer(serializers.ModelSerializer):
         ).data
 
     def get_recipes_count(self, obj):
-        count = Recipe.objects.filter(
+        return Recipe.objects.filter(
             author=obj.author
         ).count()
-        return count
 
 
 class FavoriteRecipesSerializer(serializers.ModelSerializer):
@@ -310,7 +304,7 @@ class FavoriteRecipesSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all()
     )
-    
+
     class Meta:
         model = FavoriteRecipes
         fields = (
@@ -335,11 +329,10 @@ class FavoriteRecipesSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         request = self.context.get('request')
         context = {'request': request}
-        recipes = RecipeMinifiedSerializer(
+        return RecipeMinifiedSerializer(
             instance.recipe,
             context=context
         ).data
-        return recipes
 
 
 class ShoppingListSerializer(FavoriteRecipesSerializer):

@@ -8,7 +8,7 @@ services:
     env_file:
       - ./.env
   backend:
-    image: son134/foodgram:v1.09.2022
+    image: son134/foodgram:v2.09.2022
     restart: always
     volumes:
       - static_value:/app/static/
@@ -18,21 +18,21 @@ services:
     env_file:
       - ./.env
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: son134/foodgram_frontend:v1.09.2022
     volumes:
-      - ../frontend/:/app/result_build/
+      - result_build:/app/result_build/build
+    depends_on:
+      - db
   nginx:
-    image: nginx:1.19.3
+    image: nginx:1.21.3-alpine
     ports:
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ../frontend/build:/usr/share/nginx/html/
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - result_build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
-      - static_value:/static/
-      - media_value:/media/
+      - static_value:/var/html/static/
+      - media_value:/var/html/media/
     depends_on:
       - backend
       - frontend

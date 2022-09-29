@@ -1,5 +1,4 @@
 import django_filters as filters
-
 from ingredients.models import Ingredients
 from recipes.models import Recipe
 from users.models import User
@@ -52,4 +51,4 @@ class RecipeFilter(filters.FilterSet):
         user = self.request.user
         if value:
             return queryset.filter(purchases__user=user)
-        return
+        return queryset

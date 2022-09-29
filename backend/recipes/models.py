@@ -1,7 +1,6 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.constraints import UniqueConstraint
-from django.core.validators import MinValueValidator
-
 from ingredients.models import Ingredients
 from tags.models import Tag
 from users.models import User
@@ -101,15 +100,13 @@ class IngredientInRecipe(models.Model):
                 name='unique_ingredient'
             )
         ]
-        ordering = ['-ingredient',]
+        ordering = ['-ingredient', ]
         verbose_name = 'Количество ингридиента в рецепте'
         verbose_name_plural = 'Количество ингридиентов в рецепте'
 
-
     def __str__(self):
         return (f'{self.ingredient.name} - '
-               f'{self.amount} {self.ingredient.measurement_unit}')
-
+                f'{self.amount} {self.ingredient.measurement_unit}')
 
 
 class FavoriteRecipes(models.Model):

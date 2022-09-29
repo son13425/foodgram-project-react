@@ -1,30 +1,23 @@
-from multiprocessing import context
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import viewsets, status
+from ingredients.models import Ingredients
+from recipes.models import FavoriteRecipes, IngredientInRecipe, Recipe
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from tags.models import Tag
+from users.models import Follow, User
 
 from .filters import IngredientNameFilter, RecipeFilter
 from .pagination import CustomPagination
 from .permissions import AuthorOrReadOnly
-from .serializers import (IngredientsSerializer,
-                        FavoriteRecipesSerializer,
-                        FollowSerializer,
-                        RecipeSerializer,
-                        ShoppingListSerializer,
-                        TagSerializer,
-                        UserCreateSerializer,
-                        UserWithRecipesSerializer,
-                        UserSerializer)
-from ingredients.models import Ingredients
-from recipes.models import (Recipe,
-                            IngredientInRecipe,
-                            FavoriteRecipes)
-from tags.models import Tag
-from users.models import User, Follow
+from .serializers import (FavoriteRecipesSerializer, FollowSerializer,
+                          IngredientsSerializer, RecipeSerializer,
+                          ShoppingListSerializer, TagSerializer,
+                          UserCreateSerializer, UserSerializer,
+                          UserWithRecipesSerializer)
 
 
 class IngredientsViewSet(viewsets.ModelViewSet):
@@ -44,7 +37,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-    
+
     @action(detail=True, permission_classes=[IsAuthenticated])
     def favorite(self, request, pk=None):
         user = request.user
