@@ -57,7 +57,7 @@ jobs:
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram:v2.09.2022
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:v1.09.2022
           sudo docker ps -a -q
-          sudo docker-compose rm backend
+          sudo docker container prune -f
           touch .env
           echo DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }} >> .env
           echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
