@@ -55,8 +55,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request').user.id
-        if request is None or request.is_anonymous:
-            return False
         return Follow.objects.filter(
             user=request,
             author=obj.id
@@ -150,11 +148,11 @@ class RecipeSerializer(serializers.ModelSerializer):
         slug_field='username',
         read_only=True
     )
-    tags = TagSerializer(many=True, read_only=True)
+    tags = TagSerializer(many=True, read_only=False)
     ingredients = IngredientInRecipeSerializer(
         many=True,
         source='recipe_amount',
-        read_only=True
+        read_only=False
     )
     image = Base64ImageField()
     is_favorited = serializers.SerializerMethodField(

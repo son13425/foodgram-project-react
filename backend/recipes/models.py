@@ -109,6 +109,36 @@ class IngredientInRecipe(models.Model):
                 f'{self.amount} {self.ingredient.measurement_unit}')
 
 
+class TagsRecipe(models.Model):
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+        related_name='tags_in_recipe',
+        verbose_name='Рецепт',
+        help_text='Рецепт')
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='recipe_tag',
+        verbose_name='Рецепт',
+        help_text='Рецепт'
+    )
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=['recipe', 'tag'],
+                name='unique_tag'
+            )
+        ]
+        ordering = ['-tag', ]
+        verbose_name = 'Тег в рецепте'
+        verbose_name_plural = 'Теги в рецепте'
+
+    def __str__(self):
+        return f'{self.recipe} {self.tag}'
+
+
 class FavoriteRecipes(models.Model):
     user = models.ForeignKey(
         User,
