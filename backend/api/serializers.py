@@ -219,7 +219,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             'ingredients',
             'tags',
             'cooking_time'
-            )
+        )
 
     def check_ingredients(self, data):
         validated_items = []
@@ -281,6 +281,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             recipe,
             context={'request': self.context.get('request')}
         ).data
+
 
 class RecipeMinifiedSerializer(serializers.ModelSerializer):
     class Meta:

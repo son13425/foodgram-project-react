@@ -4,9 +4,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from ingredients.models import Ingredients
 from recipes.models import FavoriteRecipes, IngredientInRecipe, Recipe
-from rest_framework import status, viewsets, filters
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated, SAFE_METHODS
+from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from tags.models import Tag
 from users.models import Follow, User
@@ -15,10 +15,9 @@ from .filters import IngredientNameFilter, RecipeFilter
 from .pagination import CustomPagination
 from .permissions import AuthorOrReadOnly
 from .serializers import (FavoriteRecipesSerializer, FollowSerializer,
-                          IngredientsSerializer, RecipeSerializer,
-                          RecipeCreateUpdateSerializer,
-                          ShoppingListSerializer, TagSerializer,
-                          UserCreateSerializer, UserSerializer,
+                          IngredientsSerializer, RecipeCreateUpdateSerializer,
+                          RecipeSerializer, ShoppingListSerializer,
+                          TagSerializer, UserCreateSerializer, UserSerializer,
                           UserWithRecipesSerializer)
 
 
