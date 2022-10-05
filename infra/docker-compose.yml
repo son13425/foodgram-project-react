@@ -8,7 +8,7 @@ services:
     env_file:
       - .env
   backend:
-    image: son134/foodgram:v2.09.2022
+    image: son134/foodgram_backend:v3.10.2022
     restart: always
     volumes:
       - static_value:/app/static/
