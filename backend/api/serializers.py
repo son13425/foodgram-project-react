@@ -1,4 +1,5 @@
 import webcolors
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
@@ -144,7 +145,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
 
 class IngredientInRecipeCreateSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(write_only=True)
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredients.objects.all())
     amount = serializers.IntegerField(write_only=True)
 
     class Meta:
@@ -200,7 +201,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
-    ingredients = IngredientInRecipeCreateSerializer(many=True)
+    ingredients = IngredientInRecipeCreateSerializer()
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True
@@ -211,61 +212,34 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = (
-            'id',
             'name',
             'text',
-            'author',
             'image',
             'ingredients',
             'tags',
             'cooking_time'
         )
 
-    def check_ingredients(self, data):
-        validated_items = []
-        existed = []
-        for item in data:
-            ingredient = get_object_or_404(
-                Ingredients,
-                pk=item['id']
-            )
-            if ingredient in validated_items:
-                existed.append(ingredient)
-            validated_items.append(ingredient)
-        if existed:
-            raise serializers.ValidationError(
-                'Этот ингредиент уже добавлен'
-            )
-
-    def validate_ingredients(self, data):
-        ingredients = data.get('ingredients')
-        self.check_ingredients(ingredients)
-        data['ingredients'] = ingredients
-        return data
-
-    @staticmethod
-    def ingredients_amount(ingredients, recipe):
-        list_ingredient = []
+    def ingredients_amount(self, ingredients, recipe):
         for ingredient in ingredients:
             amount = ingredient['amount']
-            ingredients_amount = IngredientInRecipe(
+            ingredient = int(ingredient['id'])
+            ingredients = IngredientInRecipe.objects.get_or_create(
                 recipe=recipe,
-                ingredients=get_object_or_404(
-                    Ingredients,
-                    id=ingredient['id']
-                ),
+                ingredients=ingredient,
                 amount=amount
             )
-            list_ingredient.append(ingredients_amount)
-        IngredientInRecipe.objects.bulk_create(list_ingredient)
 
+    @transaction.atomic
     def create(self, validated_data):
         image = validated_data.pop('image')
-        tags_data = validated_data.pop('tags')
-        ingredients_data = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(image=image, **validated_data)
-        self.ingredients_amount(ingredients_data, recipe)
-        recipe.tags.set(tags_data)
+        recipe.tags.set(tags)
+        recipe.ingredients.set(ingredients)
+        recipe.save()
+        self.ingredients_amount(ingredients, recipe)
         return recipe
 
     def update(self, recipe, validated_data):
