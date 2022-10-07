@@ -4,7 +4,7 @@ from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
 from ingredients.models import Ingredients
 from recipes.models import (FavoriteRecipes, IngredientInRecipe, Recipe,
-                            ShoppingList)
+                            ShoppingList, TagsRecipe)
 from rest_framework import serializers
 from tags.models import Tag
 from users.models import Follow, User
@@ -74,6 +74,13 @@ class TagSerializer(serializers.ModelSerializer):
         )
 
 
+class TagAddSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Tag
+        fields = ('id')
+
+
 class FollowSerializer(serializers.ModelSerializer):
     user = serializers.SlugRelatedField(
         queryset=User.objects.all(),
@@ -120,9 +127,9 @@ class IngredientsSerializer(serializers.ModelSerializer):
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField(source='ingredient.id')
-    name = serializers.ReadOnlyField(source='ingredient.name')
-    measurement_unit = serializers.ReadOnlyField(
+    id = serializers.IntegerField(source='ingredient.id')
+    name = serializers.CharField(source='ingredient.name')
+    measurement_unit = serializers.CharField(
         source='ingredient.measurement_unit'
     )
 
@@ -145,7 +152,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
 class IngredientInRecipeCreateSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredients.objects.all())
-    amount = serializers.IntegerField(write_only=True)
+    amount = serializers.IntegerField()
 
     class Meta:
         model = IngredientInRecipe
@@ -156,7 +163,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     author = UserSerializer(
         read_only=True
     )
-    tags = TagSerializer(many=True, read_only=False)
+    tags = TagSerializer(many=True, read_only=True)
     ingredients = IngredientInRecipeSerializer(
         many=True,
         source='recipe_amount',
@@ -200,11 +207,8 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
-    ingredients = IngredientInRecipeCreateSerializer()
-    tags = serializers.PrimaryKeyRelatedField(
-        queryset=Tag.objects.all(),
-        many=True
-    )
+    ingredients = IngredientInRecipeCreateSerializer(many=True)
+    tags = TagAddSerializer(many=True)
     image = Base64ImageField()
     cooking_time = serializers.IntegerField()
 
@@ -219,26 +223,25 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             'cooking_time'
         )
 
-    def ingredients_amount(self, ingredients, recipe):
-        for ingredient in ingredients:
-            amount = ingredient['amount']
-            ingredient = int(ingredient['id'])
-            ingredients = IngredientInRecipe.objects.get_or_create(
-                recipe=recipe,
-                ingredients=ingredient,
-                amount=amount
-            )
-
-    @transaction.atomic
     def create(self, validated_data):
-        image = validated_data.pop('image')
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(image=image, **validated_data)
-        recipe.tags.set(tags)
-        recipe.ingredients.set(ingredients)
-        recipe.save()
-        self.ingredients_amount(ingredients, recipe)
+        recipe = Recipe.objects.create(**validated_data)
+        for tag in tags:
+            current_tag, status = Tag.objects.get(Tag, pk=tag)
+            TagsRecipe.objects.create(
+                tag=current_tag,
+                recipe=recipe
+            )
+        for ingredient in ingredients:
+            current_ingredient, status = Ingredients.objects.get(
+                **ingredient
+            )
+            IngredientInRecipe.objects.create(
+                ingredient=current_ingredient,
+                recipe=recipe,
+                amount=ingredient.get('amount')
+            )
         return recipe
 
     def update(self, recipe, validated_data):

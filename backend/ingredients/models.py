@@ -19,4 +19,4 @@ class Ingredients(models.Model):
         verbose_name_plural = 'Ингридиенты'
 
     def __str__(self):
-        return f'{self.id}'
+        return f'{self.name}, {self.measurement_unit}'

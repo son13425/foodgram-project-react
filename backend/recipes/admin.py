@@ -1,6 +1,10 @@
 from django.contrib import admin
 
-from .models import FavoriteRecipes, IngredientInRecipe, Recipe, ShoppingList
+from .models import (FavoriteRecipes,
+                    IngredientInRecipe,
+                    Recipe,
+                    ShoppingList,
+                    TagsRecipe)
 
 
 class IngredientsInRecipeInline(admin.TabularInline):
@@ -8,11 +12,26 @@ class IngredientsInRecipeInline(admin.TabularInline):
     extra = 1
 
 
+class TagsRecipeInline(admin.TabularInline):
+    model = Recipe.tags.through
+    extra = 1
+
+
 class IngredientInRecipeAdmin(admin.ModelAdmin):
     list_display = (
         'recipe',
         'ingredient',
-        'amount',
+        'amount'
+    )
+    search_fields = ('recipe__name',)
+    list_filter = ('recipe',)
+    empty_value_display = '-пусто-'
+
+
+class TagsRecipeAdmin(admin.ModelAdmin):
+    list_display = (
+        'tag',
+        'recipe'
     )
     search_fields = ('recipe__name',)
     list_filter = ('recipe',)
@@ -20,7 +39,10 @@ class IngredientInRecipeAdmin(admin.ModelAdmin):
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    inlines = (IngredientsInRecipeInline,)
+    inlines = (
+        IngredientsInRecipeInline,
+        TagsRecipeInline,
+    )
     list_display = (
         'name',
         'text',

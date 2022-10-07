@@ -36,7 +36,8 @@ class Recipe(models.Model):
     )
     tags = models.ManyToManyField(
         Tag,
-        related_name='tag_recipe',
+        through='TagsRecipe',
+#       related_name='tag_recipe',
         verbose_name='Теги',
         help_text='Теги'
     )
@@ -64,6 +65,7 @@ class Recipe(models.Model):
         ordering = ['-pub_date']
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+        managed = True
 
     def __str__(self):
         return f'{self.name}'
@@ -113,13 +115,13 @@ class TagsRecipe(models.Model):
     tag = models.ForeignKey(
         Tag,
         on_delete=models.CASCADE,
-        related_name='tags_in_recipe',
+#        related_name='tags_in_recipe',
         verbose_name='Рецепт',
         help_text='Рецепт')
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipe_tag',
+#        related_name='recipe_tag',
         verbose_name='Рецепт',
         help_text='Рецепт'
     )
