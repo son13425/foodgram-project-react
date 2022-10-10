@@ -37,7 +37,6 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(
         Tag,
         through='TagsRecipe',
-#       related_name='tag_recipe',
         verbose_name='Теги',
         help_text='Теги'
     )
@@ -115,13 +114,11 @@ class TagsRecipe(models.Model):
     tag = models.ForeignKey(
         Tag,
         on_delete=models.CASCADE,
-#        related_name='tags_in_recipe',
-        verbose_name='Рецепт',
-        help_text='Рецепт')
+        verbose_name='Тэг рецепта',
+        help_text='Тэг рецепта')
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-#        related_name='recipe_tag',
         verbose_name='Рецепт',
         help_text='Рецепт'
     )
@@ -138,7 +135,7 @@ class TagsRecipe(models.Model):
         verbose_name_plural = 'Теги в рецепте'
 
     def __str__(self):
-        return f'{self.recipe} {self.tag}'
+        return f'{self.tag}'
 
 
 class FavoriteRecipes(models.Model):

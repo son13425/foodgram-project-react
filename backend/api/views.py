@@ -24,15 +24,19 @@ from .serializers import (FavoriteRecipesSerializer, FollowSerializer,
 class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
-    pagination_class = CustomPagination
     permission_classes = (AllowAny,)
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
     filterset_class = IngredientNameFilter
 
 
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = (AllowAny,)
+
+
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
     permission_classes = (AuthorOrReadOnly,)
     pagination_class = CustomPagination
     filter_class = RecipeFilter
@@ -139,13 +143,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
             'attachment; filename="shoplist.txt"'
         )
         return response
-
-
-class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Tag.objects.all()
-    serializer_class = TagSerializer
-    permission_classes = (AllowAny,)
-    pagination_class = None
 
 
 class CustomUserViewSet(UserViewSet):
