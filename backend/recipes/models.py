@@ -55,12 +55,12 @@ class Recipe(models.Model):
     )
 
     class Meta:
-        constraints = [
-            UniqueConstraint(
-                fields=['name', 'author'],
-                name='unique_name_author'
-            )
-        ]
+#        constraints = [
+#            UniqueConstraint(
+#                fields=['name', 'author'],
+#                name='unique_name_author'
+#            )
+#        ]
         ordering = ['-pub_date']
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
@@ -95,12 +95,12 @@ class IngredientInRecipe(models.Model):
     )
 
     class Meta:
-        constraints = [
-            UniqueConstraint(
-                fields=['recipe', 'ingredient'],
-                name='unique_ingredient'
-            )
-        ]
+#        constraints = [
+#            UniqueConstraint(
+#                fields=['recipe', 'ingredient'],
+#                name='unique_ingredient'
+#            )
+#        ]
         ordering = ['-ingredient', ]
         verbose_name = 'Количество ингридиента в рецепте'
         verbose_name_plural = 'Количество ингридиентов в рецепте'
@@ -119,17 +119,18 @@ class TagsRecipe(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
+        related_name='recipe_tag',
         verbose_name='Рецепт',
         help_text='Рецепт'
     )
 
     class Meta:
-        constraints = [
-            UniqueConstraint(
-                fields=['recipe', 'tag'],
-                name='unique_tag'
-            )
-        ]
+#        constraints = [
+#            UniqueConstraint(
+#                fields=['recipe', 'tag'],
+#               name='unique_tag'
+#            )
+#        ]
         ordering = ['-tag', ]
         verbose_name = 'Тег в рецепте'
         verbose_name_plural = 'Теги в рецепте'
@@ -155,12 +156,12 @@ class FavoriteRecipes(models.Model):
     )
 
     class Meta:
-        constraints = [
-            UniqueConstraint(
-                fields=['user', 'recipe'],
-                name='unique_favorite_recipes'
-            )
-        ]
+#        constraints = [
+#            UniqueConstraint(
+#                fields=['user', 'recipe'],
+#                name='unique_favorite_recipes'
+#            )
+#        ]
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
 
@@ -185,12 +186,12 @@ class ShoppingList(models.Model):
     )
 
     class Meta:
-        constraints = [
-            UniqueConstraint(
-                fields=['user', 'recipe'],
-                name='unique_shoppinglist_recipe'
-            )
-        ]
+#        constraints = [
+#            UniqueConstraint(
+#                fields=['user', 'recipe'],
+#                name='unique_shoppinglist_recipe'
+#            )
+#        ]
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
 
