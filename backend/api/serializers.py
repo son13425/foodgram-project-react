@@ -146,7 +146,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
 
 class CreateIngredientInRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(source='ingredient')
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredients.objects.all())
     amount = serializers.IntegerField()
 
     class Meta:
@@ -207,8 +207,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     ingredients = CreateIngredientInRecipeSerializer(
-        many=True,
-        read_only=False
+        many=True
     )
     tags = serializers.PrimaryKeyRelatedField(
         many=True,
@@ -241,10 +240,10 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 recipe=recipe
             )
         for ingredient in ingredients:
-            IngredientInRecipe.objects.get_or_create(
-                ingredient=ingredient['ingredient'],
+            IngredientInRecipe.objects.create(
+                ingredient=ingredient['id'],
                 recipe=recipe,
-                amount=ingredient['amount'],
+                amount=ingredient['amount']
             )
         return recipe
 
@@ -257,24 +256,19 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             instance.cooking_time
         )
         tags_data = validated_data.pop('tags')
-        tags_list = []
         for tag in tags_data:
-            current_tag = TagsRecipe.objects.create(
+            TagsRecipe.objects.get_or_create(
                 tag=tag,
                 recipe=instance
             )
-            tags_list.append(current_tag)
-        instance.tags.set(tags_list)
         ingredients_data = validated_data.pop('ingredients')
-        ingredients_list = []
+        instance.ingredients.clear()
         for ingredient in ingredients_data:
-            current_ingredient = IngredientInRecipe.objects.create(
-                ingredient=Ingredients.objects.get(id=ingredient['id']),
+            IngredientInRecipe.objects.create(
+                ingredient=ingredient['id'],
                 recipe=instance,
-                amount=ingredient['amount'],
+                amount=ingredient['amount']
             )
-            ingredients_list.append(current_ingredient)
-        instance.ingredients.set(ingredients_list)
         instance.save()
         return instance
 
