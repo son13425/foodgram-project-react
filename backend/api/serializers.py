@@ -327,12 +327,12 @@ class UserWithRecipesSerializer(serializers.ModelSerializer):
         ).exists()
 
     def get_recipes(self, obj):
-        request = self.context.get('request').user.id
-        limit = request.Get.get('recipes_limit')
+        request = self.context.get('request')
+        recipes_limit = request.Get.get('recipes_limit')
         queryset = Recipe.objects.filter(
             author=obj.author
         )
-        if limit is not None:
+        if recipes_limit:
             queryset = Recipe.objects.filter(
                 author=obj.author
             )[:int(limit)]
@@ -413,4 +413,3 @@ class ShoppingListSerializer(FavoriteRecipesSerializer):
         return RecipeMinifiedSerializer(
             instance.recipe,
             context=context).data
-

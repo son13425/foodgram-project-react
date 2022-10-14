@@ -9,3 +9,12 @@ class AuthorOrReadOnly(permissions.BasePermission):
             or obj.author == request.user
             or request.user.is_superuser
         )
+
+class AdminOrReadOnly(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        return (
+            request.method in permissions.SAFE_METHODS
+            or request.user
+            and request.user.is_superuser
+        )

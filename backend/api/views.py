@@ -13,7 +13,7 @@ from users.models import Follow, User
 
 from .filters import IngredientNameFilter, RecipeFilter
 from .pagination import CustomPagination
-from .permissions import AuthorOrReadOnly
+from .permissions import AuthorOrReadOnly, AdminOrReadOnly
 from .serializers import (FavoriteRecipesSerializer, FollowSerializer,
                           IngredientsSerializer, RecipeCreateUpdateSerializer,
                           RecipeSerializer, ShoppingListSerializer,
@@ -24,7 +24,7 @@ from .serializers import (FavoriteRecipesSerializer, FollowSerializer,
 class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (AdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
     filterset_class = IngredientNameFilter
 
@@ -32,13 +32,14 @@ class IngredientsViewSet(viewsets.ModelViewSet):
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (AdminOrReadOnly,)
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (AuthorOrReadOnly,)
     pagination_class = CustomPagination
+    filter_backends = (DjangoFilterBackend,)
     filter_class = RecipeFilter
 
     def get_serializer_class(self):
@@ -149,6 +150,7 @@ class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     pagination_class = CustomPagination
     serializer_class = UserSerializer
+    search_fields = ('username', 'email')
     permission_classes = (AllowAny,)
 
     def get_serializer_class(self):
@@ -156,37 +158,11 @@ class CustomUserViewSet(UserViewSet):
             return UserCreateSerializer
         return UserSerializer
 
-    @action(detail=True, permission_classes=[IsAuthenticated])
-    def follow(self, request, id=None):
-        user = request.user
-        author = get_object_or_404(User, id=id)
-        data = {
-            'user': user.id,
-            'author': author.id,
-        }
-        serializer = FollowSerializer(
-            data=data, context={'request': request}
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(
-            serializer.data,
-            status=status.HTTP_201_CREATED
-        )
-
-    @follow.mapping.delete
-    def delete_follow(self, request, id=None):
-        user = request.user
-        author = get_object_or_404(User, id=id)
-        follow = get_object_or_404(
-            Follow,
-            user=user,
-            author=author
-        )
-        follow.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(detail=False, permission_classes=[IsAuthenticated])
+    @action(
+        methods=['GET'],
+        detail=False,
+        permission_classes=[IsAuthenticated]
+    )
     def subscriptions(self, request):
         user = request.user
         queryset = Follow.objects.filter(user=user)
@@ -199,27 +175,26 @@ class CustomUserViewSet(UserViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(
-        methods=[
-            "get",
-            "patch",
-        ],
-        detail=False,
-        url_path="me",
-        permission_classes=[IsAuthenticated],
-        serializer_class=UserSerializer,
-    )
-    def users_own_profile(self, request):
-        user = request.user
-        if request.method == "GET":
-            serializer = self.get_serializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        if request.method == "PATCH":
-            serializer = self.get_serializer(
-                user,
-                data=request.data,
-                partial=True
+        methods=['POST', 'DELETE'],
+        detail=True,
+        permission_classes=[IsAuthenticated]
+    ) 
+    def subscribe(self, request, id):
+        author = get_object_or_404(User, id=id)
+        if request.method == 'POST':
+            serializer = FollowSerializer(
+                Follow.objects.create(
+                    user=request.user,
+                    author=author
+                ),
+                context={'request': request},
             )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED
+            )
+        Follow.objects.filter(
+            user=request.user,
+            author=author
+        ).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
