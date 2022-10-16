@@ -166,3 +166,5 @@ DJOSER = {
 }
 
 AUTH_USER_MODEL = 'users.User'
+
+SHOPPING_LIST_FILENAME = 'shopping_list.txt'
