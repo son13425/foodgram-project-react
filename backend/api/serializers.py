@@ -349,7 +349,6 @@ class UserWithRecipesSerializer(serializers.ModelSerializer):
             )[:int(limit)]
         return RecipeMinifiedSerializer(queryset, many=True).data
 
-
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(
             author=obj.author

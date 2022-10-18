@@ -10,6 +10,7 @@ class AuthorOrReadOnly(permissions.BasePermission):
             or request.user.is_superuser
         )
 
+
 class AdminOrReadOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):

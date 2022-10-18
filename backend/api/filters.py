@@ -1,4 +1,5 @@
 import django_filters as filters
+from django_filters.widgets import BooleanWidget
 from ingredients.models import Ingredients
 from recipes.models import Recipe
 from users.models import User
@@ -26,10 +27,14 @@ class RecipeFilter(filters.FilterSet):
         queryset=User.objects.all()
     )
     is_favorited = filters.BooleanFilter(
-        method='get_is_favorited'
+        field_name='is_favorited',
+        method='get_is_favorited',
+        widget=BooleanWidget()
     )
     is_in_shopping_cart = filters.BooleanFilter(
-        method='get_is_in_shopping_cart'
+        field_name='is_in_shopping_cart',
+        method='get_is_in_shopping_cart',
+        widget=BooleanWidget()
     )
 
     class Meta:
@@ -44,11 +49,11 @@ class RecipeFilter(filters.FilterSet):
     def get_is_favorited(self, queryset, name, value):
         user = self.request.user
         if value:
-            return queryset.filter(favorite_recipe__user=user)
+            return queryset.filter(recipe_favorites__user=user)
         return queryset
 
     def get_is_in_shopping_cart(self, queryset, name, value):
         user = self.request.user
         if value:
-            return queryset.filter(purchases__user=user)
+            return queryset.filter(recipe_shoppinglist__user=user)
         return queryset

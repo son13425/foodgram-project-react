@@ -89,4 +89,4 @@
 ## Лицензия
 Сценарии и документация в этом проекте выпущены под лицензией [MIT](https://github.com/son13425/foodgram-project-react/blob/master/COPYING.txt)
 
-![example event parameter](https://github.com/son13425/foodgram-project-react/actions/workflows/foodgram_workflow/badge.svg?event=push)
+![example event parameter](https://github.com/son13425/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg?event=push)

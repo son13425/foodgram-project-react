@@ -128,7 +128,7 @@ class TagsRecipe(models.Model):
         constraints = [
             UniqueConstraint(
                 fields=['recipe', 'tag'],
-               name='unique_tag'
+                name='unique_tag'
             )
         ]
         ordering = ['-tag', ]

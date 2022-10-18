@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from django.http.response import HttpResponse
+
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
@@ -14,11 +14,12 @@ from users.models import Follow, User
 
 from .filters import IngredientNameFilter, RecipeFilter
 from .pagination import CustomPagination
-from .permissions import AuthorOrReadOnly, AdminOrReadOnly
+from .permissions import AdminOrReadOnly, AuthorOrReadOnly
 from .serializers import (FollowSerializer, IngredientsSerializer,
-                          RecipeCreateUpdateSerializer, RecipeSerializer,
+                          RecipeCreateUpdateSerializer,
+                          RecipeMinifiedSerializer, RecipeSerializer,
                           TagSerializer, UserCreateSerializer, UserSerializer,
-                          UserWithRecipesSerializer, RecipeMinifiedSerializer)
+                          UserWithRecipesSerializer)
 from .services import get_ingredients_for_shopping
 
 
@@ -136,7 +137,7 @@ class CustomUserViewSet(UserViewSet):
         methods=['POST', 'DELETE'],
         detail=True,
         permission_classes=[IsAuthenticated]
-    ) 
+    )
     def subscribe(self, request, id):
         author = get_object_or_404(User, id=id)
         if request.method == 'POST':
