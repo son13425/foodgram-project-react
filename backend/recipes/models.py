@@ -64,7 +64,6 @@ class Recipe(models.Model):
         ordering = ['-pub_date']
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
-        managed = True
 
     def __str__(self):
         return f'{self.name}'

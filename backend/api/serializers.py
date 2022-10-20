@@ -238,22 +238,64 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('author',)
 
+    def validate(self, data):
+        tags = data['tags']
+        if tags is None:
+            raise serializers.ValidationError(
+                'Необходимо добавить хотя бы один тэг'
+            )
+        cooking_time = data['cooking_time']
+        if int(cooking_time) <= 0:
+            raise serializers.ValidationError(
+                'Минимальное время приготовления - 1 минута'
+            )
+        ingredients = data['ingredients']
+        if ingredients is None:
+            raise serializers.ValidationError(
+                'Вы забыли добавить ингредиенты'
+            )
+        ingredients_list = []
+        for ingredient in ingredients:
+            name = ingredient['id']
+            if int(ingredient['amount']) <= 0:
+                raise serializers.ValidationError(
+                    f'Минимальное количество {name} - 1'
+                )
+            if name in ingredients_list:
+                raise serializers.ValidationError(
+                    f'Ингредиент {name} уже добавлен'
+                )
+            ingredients_list.append(name)
+        return data
+
+    def add_tag(self, tags, recipe):
+        tag_list = []
+        for tag in tags:
+            current_tag = TagsRecipe(
+                tag=tag,
+                recipe=recipe
+            )
+            tag_list.append(current_tag)
+        TagsRecipe.objects.bulk_create(tag_list)
+
+    def add_ingredient(self, ingredients, recipe):
+        ingredient_list = []
+        for ingredient in ingredients:
+            current_ingredient = IngredientInRecipe(
+                ingredient=ingredient['id'],
+                recipe=recipe,
+                amount=ingredient['amount']
+            )
+            ingredient_list.append(current_ingredient)
+        IngredientInRecipe.objects.bulk_create(ingredient_list)
+
     def create(self, validated_data):
         image = validated_data.pop('image')
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(image=image, **validated_data)
-        for tag in tags:
-            TagsRecipe.objects.create(
-                tag=tag,
-                recipe=recipe
-            )
-        for ingredient in ingredients:
-            IngredientInRecipe.objects.create(
-                ingredient=ingredient['id'],
-                recipe=recipe,
-                amount=ingredient['amount']
-            )
+        self.add_tag(tags, recipe)
+        self.add_ingredient(ingredients, recipe)
         return recipe
 
     def update(self, instance, validated_data):
@@ -265,19 +307,11 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             instance.cooking_time
         )
         tags_data = validated_data.pop('tags')
-        for tag in tags_data:
-            TagsRecipe.objects.get_or_create(
-                tag=tag,
-                recipe=instance
-            )
+        instance.tags.clear()
+        self.add_tag(tags_data, instance)
         ingredients_data = validated_data.pop('ingredients')
         instance.ingredients.clear()
-        for ingredient in ingredients_data:
-            IngredientInRecipe.objects.create(
-                ingredient=ingredient['id'],
-                recipe=instance,
-                amount=ingredient['amount']
-            )
+        self.add_ingredient(ingredients_data, instance)
         instance.save()
         return instance
 

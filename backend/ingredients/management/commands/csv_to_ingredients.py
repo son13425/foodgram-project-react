@@ -5,7 +5,7 @@ from ingredients.models import Ingredients
 
 
 class Command(BaseCommand):
-    help = 'Наполнение БД из файла CSV'
+    help = 'Наполнение БД ингредиентами из файла CSV'
 
     def handle(self, *args, **options):
         filename = '../data/ingredients.csv'

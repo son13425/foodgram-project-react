@@ -135,3 +135,5 @@ frontend/build/
 frontend/node_modules/
 .frontend/build
 .frontend/node_modules
+
+.isort.cfg
