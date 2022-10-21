@@ -3,12 +3,13 @@ from http import HTTPStatus
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from ingredients.models import Ingredients
-from recipes.models import FavoriteRecipes, Recipe, ShoppingList
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticated
 from rest_framework.response import Response
+
+from ingredients.models import Ingredients
+from recipes.models import FavoriteRecipes, Recipe, ShoppingList
 from tags.models import Tag
 from users.models import Follow, User
 

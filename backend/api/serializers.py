@@ -1,10 +1,11 @@
 import webcolors
 from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
+
 from ingredients.models import Ingredients
 from recipes.models import (FavoriteRecipes, IngredientInRecipe, Recipe,
                             ShoppingList, TagsRecipe)
-from rest_framework import serializers
 from tags.models import Tag
 from users.models import Follow, User
 
@@ -56,10 +57,12 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        user = self.context['request'].user
+        user = self.context['request']
+        if user is None or user.user.is_anonymous:
+            return False
         return Follow.objects.filter(
-            user=user, author=obj
-        ).exists() if user.is_authenticated else False
+            user=user.user, author=obj
+        ).exists()
 
 
 class FollowSerializer(serializers.ModelSerializer):

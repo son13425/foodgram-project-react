@@ -1,6 +1,7 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.constraints import UniqueConstraint
+
 from ingredients.models import Ingredients
 from tags.models import Tag
 from users.models import User

@@ -1,5 +1,6 @@
 import django_filters as filters
 from django_filters.widgets import BooleanWidget
+
 from ingredients.models import Ingredients
 from recipes.models import Recipe
 from users.models import User
