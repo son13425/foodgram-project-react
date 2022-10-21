@@ -8,7 +8,7 @@ services:
     env_file:
       - .env
   backend:
-    image: son134/foodgram_backend:v3.10.2022
+    image: son134/foodgram_backend:latest
     restart: always
     volumes:
       - static_value:/app/static/
@@ -18,7 +18,7 @@ services:
     env_file:
       - ./.env
   frontend:
-    image: son134/foodgram_frontend:v1.09.2022
+    image: son134/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
@@ -33,11 +33,10 @@ services:
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static_value:/var/html/static/
       - media_value:/var/html/media/
+    restart: always
     depends_on:
       - backend
       - frontend
-    env_file:
-      - ./.env
 
 volumes:
   static_value:
