@@ -41,12 +41,12 @@ jobs:
           context: backend/
           file: backend/Dockerfile
       - name: Push to DockerHub (frontend)
-            uses: docker/build-push-action@v2
-            with:
-              push: true
-              tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
-              context: frontend/
-              file: frontend/Dockerfile
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
+          context: frontend/
+          file: frontend/Dockerfile
   deploy:
     runs-on: ubuntu-latest
     needs: build_and_push_to_docker_hub
