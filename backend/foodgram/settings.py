@@ -67,6 +67,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     'http://backend:8000',
 ]
+
 CORS_URLS_REGEX = r'^/api/.*$'
 
 ROOT_URLCONF = 'foodgram.urls'
