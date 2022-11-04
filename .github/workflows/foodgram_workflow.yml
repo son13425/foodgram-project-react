@@ -60,6 +60,7 @@ jobs:
         script: |
           sudo docker-compose stop
           sudo docker-compose rm backend
+          sudo docker-compose rm frontend
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
           touch .env
