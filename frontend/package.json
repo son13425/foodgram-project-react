@@ -38,5 +38,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://son1345_backend_1:8000/"
+  "proxy": "http://web:8000/"
 }
