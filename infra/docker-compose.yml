@@ -21,6 +21,8 @@ services:
       - ./.env
   frontend:
     image: son134/foodgram_frontend:latest
+    ports:
+     - "3000:3000"
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
@@ -35,6 +37,7 @@ services:
       - ./docs/:/usr/share/nginx/html/api/docs/
       - static_value:/var/html/static/
       - media_value:/var/html/media/
+    restart: always
     depends_on:
       - backend
       - frontend
