@@ -43,7 +43,7 @@ services:
       - backend
       - frontend
   certbot:
-    image: certbot/cerbot:latest
+    image: certbot/certbot:latest
     volumes:
       - ./certbot/www/:/var/www/certbot/
       - ./certbot/conf/:/etc/letsencrypt/
